@@ -105,6 +105,8 @@ def parse_opt():
              and also loads the otpimizer state dictionary'
     )
     args = vars(parser.parse_args())
+
+
     return args
 
 def main(args):
@@ -221,6 +223,14 @@ def main(args):
                 val_map_05 = checkpoint['val_map_05']
         
     print(model)
+
+    print(f"Using device: {DEVICE}")
+
+    if DEVICE.type == 'cuda':
+        print(f"GPU detected: {torch.cuda.get_device_name(DEVICE)}")
+    else:
+        print("No GPU detected, using CPU.")
+
     model = model.to(DEVICE)
     # Total parameters and trainable parameters.
     total_params = sum(p.numel() for p in model.parameters())
