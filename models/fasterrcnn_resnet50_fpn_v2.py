@@ -2,7 +2,7 @@ import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 
-def create_model(num_classes):
+def create_model(num_classes, pretrained=False, coco_model=False):
     """
     Create a Faster R-CNN model from scratch (no COCO pretrained weights).
     Args:
