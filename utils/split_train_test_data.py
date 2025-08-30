@@ -50,6 +50,10 @@ def split_voc_dataset_exact(
             src_xml = os.path.join(src_ann_dir, base + '.xml')
             if os.path.exists(src_xml):
                 shutil.copy(src_xml, os.path.join(dst_ann_dir, base + '.xml'))
+            else:
+                src_txt = os.path.join(src_ann_dir, base + ".txt")
+                if os.path.exists(src_txt):
+                    shutil.copy(src_txt, os.path.join(dst_ann_dir, base + ".txt"))
 
     copy_split(train_bases, images_dir, annotations_dir, train_images_dir, train_ann_dir)
     copy_split(test_bases, images_dir, annotations_dir, test_images_dir, test_ann_dir)
@@ -62,8 +66,8 @@ def split_voc_dataset_exact(
 
 
 if __name__ == "__main__":
-    images_folder = r"D:\Repo\TikTok_Hackathon\Techjam_2025\data\raw_data\images"
-    annotations_folder = r"D:\Repo\TikTok_Hackathon\Techjam_2025\data\raw_data\annotations"
-    output_folder = r"D:\Repo\TikTok_Hackathon\Techjam_2025\test_data"
+    images_folder = r"D:\Repo\TikTok_Hackathon\Techjam_2025\data\yolo_data\images"
+    annotations_folder = r"D:\Repo\TikTok_Hackathon\Techjam_2025\data\yolo_data\labels"
+    output_folder = r"D:\Repo\TikTok_Hackathon\Techjam_2025\data\yolo_data"
     split_voc_dataset_exact(images_folder, annotations_folder, output_folder,
                             train_count=1600, test_count=350)

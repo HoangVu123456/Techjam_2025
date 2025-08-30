@@ -1,3 +1,4 @@
 data/
 outputs/*
 test_data/
+clean_yolo_data/
