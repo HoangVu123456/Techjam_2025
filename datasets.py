@@ -113,7 +113,11 @@ class CustomDataset(Dataset):
             
         for member in root.findall('object'):
             labels.append(self.classes.index(member.find('name').text))
+
+            # Check for polygon first; if not found, use bndbox
             polygon = member.find('polygon')
+            bndbox = member.find('bndbox')
+
             if polygon is not None:
                 pts = polygon.findall('pt')
                 # Only use polygons with 4 valid points
@@ -127,8 +131,14 @@ class CustomDataset(Dataset):
                 else:
                     # Skip invalid polygons
                     continue
+            elif bndbox is not None:
+                # Use bounding box if polygon not present
+                xmin = int(float(bndbox.find('xmin').text))
+                ymin = int(float(bndbox.find('ymin').text))
+                xmax = int(float(bndbox.find('xmax').text))
+                ymax = int(float(bndbox.find('ymax').text))
             else:
-                # Skip if no polygon
+                # Skip if neither polygon nor bndbox exists
                 continue
 
             ymax, xmax = self.check_image_and_annotation(

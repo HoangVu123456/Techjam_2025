@@ -1,8 +1,8 @@
 # Images and labels directory should be relative to train.py
-TRAIN_DIR_IMAGES: 'test_data/ppe/labelme_split/train'
-TRAIN_DIR_LABELS: 'test_data/ppe/labelme_split/train'
-VALID_DIR_IMAGES: 'test_data/ppe/labelme_split/test'
-VALID_DIR_LABELS: 'test_data/ppe/labelme_split/test'
+TRAIN_DIR_IMAGES: 'test_data/train'
+TRAIN_DIR_LABELS: 'test_data/train'
+VALID_DIR_IMAGES: 'test_data/test'
+VALID_DIR_LABELS: 'test_data/test'
 
 # Class names.
 CLASSES: [
