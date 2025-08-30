@@ -4,6 +4,7 @@ import time
 from torchvision.transforms import functional as F
 from PIL import Image, ImageDraw
 import torchvision.ops as ops
+from concurrent.futures import ThreadPoolExecutor
 import os
 
 # 1. Load models
@@ -19,8 +20,8 @@ models = [model1, model2]
 
 # 2. Loop through all images in a folder
 image_folder = r"F:\fasterrcnn_resnet50_fpn_v2_new_dataset\inputs"  # <-- change this to your folder
-os.makedirs("Results", exist_ok=True)
 image_files = [f for f in os.listdir(image_folder) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+os.makedirs("Results", exist_ok=True)
 start_time = time.time()
 
 for image_name in image_files:
@@ -28,12 +29,16 @@ for image_name in image_files:
     image = Image.open(image_path)
     image_tensor = F.to_tensor(image)
 
-    # 3. Run inference (concurrent/sequential)
-    outputs = []
-    for model in models:
+    # 3. Run inference in parallel
+    def run_model(model, image_tensor):
         with torch.no_grad():
-            output = model([image_tensor])[0]
-            outputs.append(output)
+            return model([image_tensor])[0]
+
+    outputs = []
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = [executor.submit(run_model, m, image_tensor) for m in models]
+        for f in futures:
+            outputs.append(f.result())
 
     # 4. Ensemble predictions (NMS example)
     all_boxes = torch.cat([o['boxes'] for o in outputs])
@@ -56,6 +61,6 @@ for image_name in image_files:
         draw.text((box[0], box[1]), f"{int(label.item())}:{score.item():.2f}", fill="yellow")
     save_path = os.path.join("Results", f"ensemble_{image_name}")
     image_draw.save(save_path)
-
+    
 end_time = time.time()
-print(f"Inference took {end_time - start_time:.2f} seconds")
+print(f"Parallel inference took {end_time - start_time:.2f} seconds")
