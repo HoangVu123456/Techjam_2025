@@ -9,9 +9,14 @@ def inference_annotations(
     scores = outputs[0]['scores'].data.numpy()
     # Filter out boxes according to `detection_threshold`.
     boxes = boxes[scores >= detection_threshold].astype(np.int32)
+    # Also filter scores to match the filtered boxes
+    filtered_scores = scores[scores >= detection_threshold]
     draw_boxes = boxes.copy()
     # Get all the predicited class names.
     pred_classes = [classes[i] for i in outputs[0]['labels'].cpu().numpy()]
+    # Filter pred_classes to match filtered boxes
+    filtered_labels = outputs[0]['labels'].cpu().numpy()[scores >= detection_threshold]
+    pred_classes = [classes[i] for i in filtered_labels]
 
     lw = max(round(sum(orig_image.shape) / 2 * 0.003), 2)  # Line width.
     tf = max(lw - 1, 1) # Font thickness.
@@ -20,6 +25,9 @@ def inference_annotations(
     for j, box in enumerate(draw_boxes):
         p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
         class_name = pred_classes[j]
+        confidence = filtered_scores[j]
+        # Create label with class name and confidence score
+        label = f"{class_name}: {confidence:.2f}"
         color = colors[classes.index(class_name)]
         cv2.rectangle(
             orig_image,
@@ -30,7 +38,7 @@ def inference_annotations(
         )
         # For filled rectangle.
         w, h = cv2.getTextSize(
-            class_name, 
+            label, 
             0, 
             fontScale=lw / 3, 
             thickness=tf
@@ -47,7 +55,7 @@ def inference_annotations(
         )  
         cv2.putText(
             orig_image, 
-            class_name, 
+            label, 
             (p1[0], p1[1] - 5 if outside else p1[1] + h + 2),
             cv2.FONT_HERSHEY_SIMPLEX, 
             fontScale=lw / 3.8, 
