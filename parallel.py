@@ -214,7 +214,7 @@ COLORS = [
 # Image processing
 image_folder = "./images"
 image_files = [f for f in os.listdir(image_folder) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
-os.makedirs("Results", exist_ok=True)
+os.makedirs("Results1", exist_ok=True)
 start_time = time.time()
 
 for image_name in image_files:
@@ -265,7 +265,7 @@ for image_name in image_files:
         
         # Apply final NMS
         if len(boxes) > 0:
-            final_boxes, final_scores, keep_indices = soft_nms(boxes, scores, iou_threshold=0.5)
+            final_boxes, final_scores, keep_indices = soft_nms(boxes, scores, iou_threshold=0.5, method="gaussian")
             final_labels = labels[keep_indices]
         else:
             final_boxes = torch.empty((0, 4))
@@ -307,7 +307,7 @@ for image_name in image_files:
             print(f"  Detection {i+1}: {class_name} (confidence: {score:.3f}) "
                   f"[{box[0]:.1f}, {box[1]:.1f}, {box[2]:.1f}, {box[3]:.1f}]")
     
-    save_path = os.path.join("Results", f"rpn_ensemble_{image_name}")
+    save_path = os.path.join("Results1", f"rpn_ensemble_{image_name}")
     cv2.imwrite(save_path, result_img)
     
     print(f"Saved annotated image to {save_path}\n")
