@@ -182,6 +182,7 @@ def save_model(
     :param val_map_05: mAP for IoU 0.5.
     :param OUT_DIR: Output directory to save the model.
     """
+    model_filename = f"{OUT_DIR}/model_resnet101.pth"
     torch.save({
                 'epoch': epoch+1,
                 'model_state_dict': model.state_dict(),
@@ -192,7 +193,7 @@ def save_model(
                 'val_map_05': val_map_05,
                 'config': config,
                 'model_name': model_name
-                }, f"{OUT_DIR}/last_model.pth")
+                }, model_filename)
 
 def save_model_state(model, OUT_DIR, config, model_name):
     """

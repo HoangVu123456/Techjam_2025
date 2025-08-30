@@ -111,14 +111,38 @@ class CustomDataset(Dataset):
             # the label index and append to `labels` list.
             labels.append(self.classes.index(member.find('name').text))
             
-            # xmin = left corner x-coordinates
-            xmin = int(member.find('bndbox').find('xmin').text)
-            # xmax = right corner x-coordinates
-            xmax = int(member.find('bndbox').find('xmax').text)
-            # ymin = left corner y-coordinates
-            ymin = int(member.find('bndbox').find('ymin').text)
-            # ymax = right corner y-coordinates
-            ymax = int(member.find('bndbox').find('ymax').text)
+        for member in root.findall('object'):
+            labels.append(self.classes.index(member.find('name').text))
+            polygon = member.find('polygon')
+            if polygon is not None:
+                pts = polygon.findall('pt')
+                # Only use polygons with 4 valid points
+                if len(pts) == 4 and all(pt.find('x').text and pt.find('y').text for pt in pts):
+                    xs = [float(pt.find('x').text) for pt in pts]
+                    ys = [float(pt.find('y').text) for pt in pts]
+                    xmin = int(min(xs))
+                    xmax = int(max(xs))
+                    ymin = int(min(ys))
+                    ymax = int(max(ys))
+                else:
+                    # Skip invalid polygons
+                    continue
+            else:
+                # Skip if no polygon
+                continue
+
+            ymax, xmax = self.check_image_and_annotation(
+                xmax, ymax, image_width, image_height
+            )
+
+            orig_boxes.append([xmin, ymin, xmax, ymax])
+
+            xmin_final = (xmin/image_width)*self.width
+            xmax_final = (xmax/image_width)*self.width
+            ymin_final = (ymin/image_height)*self.height
+            ymax_final = (ymax/image_height)*self.height
+
+            boxes.append([xmin_final, ymin_final, xmax_final, ymax_final])
 
             ymax, xmax = self.check_image_and_annotation(
                 xmax, ymax, image_width, image_height
@@ -137,6 +161,9 @@ class CustomDataset(Dataset):
         
         # Bounding box to tensor.
         boxes = torch.as_tensor(boxes, dtype=torch.float32)
+        if boxes.numel() == 0:
+            # No boxes, create an empty [0, 4] tensor to avoid IndexError
+            boxes = boxes.new_zeros((0, 4))
         # Area of the bounding boxes.
         area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
         # No crowd instances.
@@ -251,8 +278,11 @@ class CustomDataset(Dataset):
         target["iscrowd"] = iscrowd
         image_id = torch.tensor([idx])
         target["image_id"] = image_id
+
+        labels_list = labels.tolist() if isinstance(labels, torch.Tensor) else labels
         if self.use_train_aug: # Use train augmentation if argument is passed.
             train_aug = get_train_aug()
+            labels = labels.tolist() if isinstance(labels, torch.Tensor) else labels
             sample = train_aug(image=image_resized,
                                      bboxes=target['boxes'],
                                      labels=labels)
@@ -261,7 +291,7 @@ class CustomDataset(Dataset):
         else:
             sample = self.transforms(image=image_resized,
                                      bboxes=target['boxes'],
-                                     labels=labels)
+                                     labels=labels.tolist() if isinstance(labels, torch.Tensor) else labels)
             image_resized = sample['image']
             target['boxes'] = torch.Tensor(sample['bboxes'])
         

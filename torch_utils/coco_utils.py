@@ -189,6 +189,12 @@ def convert_to_coco_api(ds):
     dataset["categories"] = [{"id": i} for i in sorted(categories)]
     coco_ds.dataset = dataset
     coco_ds.createIndex()
+    if "info" not in dataset:
+        dataset["info"] = {
+            "description": "Dataset converted for COCO evaluation",
+            "version": "1.0",
+            "year": 2025
+        }
     return coco_ds
 
 

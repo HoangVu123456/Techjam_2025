@@ -1,13 +1,17 @@
 # Images and labels direcotry should be relative to train.py
-TRAIN_DIR_IMAGES: 'data/ppe/dataset/train'
-TRAIN_DIR_LABELS: 'data/ppe/dataset/train'
-VALID_DIR_IMAGES: 'data/ppe/dataset/test'
-VALID_DIR_LABELS: 'data/ppe/dataset/test'
+TRAIN_DIR_IMAGES: 'data/ppe/labelme_split/train'
+TRAIN_DIR_LABELS: 'data/ppe/labelme_split/train'
+VALID_DIR_IMAGES: 'data/ppe/labelme_split/test'
+VALID_DIR_LABELS: 'data/ppe/labelme_split/test'
 
 # Class names.
 CLASSES: [
     '__background__',
-    'Mask', 'Face_Shield', 'Coverall', 'Gloves', 'Goggles'
+    'text_overlap',
+    'component_occlusion',
+    'missing_image',
+    'null_text',
+    'element_overflow'
 ]
 
 # Number of classes (object classes + 1 for background class in Faster RCNN).
