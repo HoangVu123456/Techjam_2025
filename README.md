@@ -32,10 +32,6 @@ Bug404 is built on **Faster R-CNN** with multiple ResNet backbones: ResNet-18, R
 git clone https://github.com/hoangvu123456/techjam_2025.git
 cd techjam_2025
 
-# Create and activate virtual environment
-conda create -n bug404 python=3.10
-conda activate bug404
-
 # Install dependencies
 pip install -r requirements.txt
 
@@ -71,3 +67,4 @@ python train.py --model fasterrcnn_resnet50_fpn_v2 --epochs 2 --config data_conf
 # Training on ResNet50 FPN v2 with custom project folder name with mosaic augmentation (ON by default) and added training augmentations:
 python train.py --model fasterrcnn_resnet50_fpn_v2 --epochs 2 --use-train-aug --config data_configs/voc.yaml --project-name resnet50fpn_voc --batch-size 4
 ```
+
